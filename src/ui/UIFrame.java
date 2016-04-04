@@ -21,8 +21,26 @@ public class UIFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(2, 1));
 
+
+        JPanel infoPanel = new JPanel(new BorderLayout());
         final JTextArea textArea = new JTextArea();
         textArea.setBackground(Color.pink);
+        String[] columnNames = {"ID",
+                "Name",
+                "Surname",
+                "Patronymic",
+                "Phone"};
+        String[][] data = {
+                {"aaaaaa", "bbbbbb", "cccccc", "dddddd", "eeeeeee",},
+                {"bbbbbb", "cccccc", "dddddd", "eeeeeee", "aaaaaa",},
+                {"cccccc", "dddddd", "eeeeeee", "aaaaaa", "bbbbbb",},
+                {"dddddd", "eeeeeee", "aaaaaa", "bbbbbb", "cccccc",},
+                {"eeeeeee", "aaaaaa", "bbbbbb", "cccccc", "dddddd",}};
+        JTable table = new JTable(data, columnNames);
+        infoPanel.add(textArea, BorderLayout.NORTH);
+        infoPanel.add(table, BorderLayout.CENTER);
+
+
 
         JPanel buttonPanel = new JPanel(new GridLayout(3, 1));
         JPanel dbPanel = new JPanel(new GridLayout());
@@ -34,9 +52,9 @@ public class UIFrame extends JFrame {
                 System.out.println("create Table button touch!");
                 textArea.setText("");
                 if (worker.createDB(dbName))
-                    textArea.append("DB created \n");
+                    textArea.append("DB created");
                 else
-                    textArea.append("Error of creating DB\n");
+                    textArea.append("Error of creating DB");
             }
         });
         dbPanel.add(dbBox);
@@ -69,7 +87,7 @@ public class UIFrame extends JFrame {
         buttonPanel.add(infoButton);
         buttonPanel.add(userPanel);
 
-        add(textArea);
+        add(infoPanel);
         add(buttonPanel);
 
 
