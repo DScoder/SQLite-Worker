@@ -123,6 +123,27 @@ public class UIFrame extends JFrame {
             }
         });
         JButton deleteUser = new JButton("DELETE USER");
+        deleteUser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Delete data button touch!");
+                textArea.setText("");
+                if (worker.isOpen()) {
+                    if(worker.infoList.size() >0){
+                        worker.deleteData(dbName);
+                        worker.reedDB(dbName);
+                        tableModel.setRowCount(0);
+                        tableModel.setColumnIdentifiers(worker.header);
+                        for (int i = 0; i < worker.infoList.size(); i++) {
+                            tableModel.addRow(worker.infoList.get(i));
+                        }
+                        textArea.append("Data deleted!");
+                    } else
+                        textArea.append("Table is void!");
+                } else
+                    textArea.append("DB closed!");
+            }
+        });
         userPanel.add(addUser);
         userPanel.add(deleteUser);
 

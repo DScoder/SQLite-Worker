@@ -13,7 +13,6 @@ public class DBWorker {
     private int id = 0;
     String[] header = null;
     ArrayList<String[]> infoList = new ArrayList<String[]>();
-    ResultSet rs;
 
 
     public boolean isOpen() {
@@ -89,7 +88,7 @@ public class DBWorker {
         try {
         stmt.executeUpdate("INSERT INTO " + name +
                 " (Name, Surname, Patronymic, PhoneNumber) " +
-                "VALUES ( 'Allen" + id + "' , 'Predator" + id + "', 'Texas" + id + "', 15434" + id + " );");
+                "VALUES ( 'Name" + id + "' , 'Surname" + id + "', 'Patronymic" + id + "', 1234500" + id + " );");
             System.out.println("Data was added");
             id++;
         } catch (SQLException e) {
@@ -97,4 +96,19 @@ public class DBWorker {
         }
     }
 
+    public void deleteData(String name){
+        ArrayList<Integer> ints = new ArrayList<Integer>();
+        int i = 0;
+        try {
+            ResultSet rs = stmt.executeQuery("SELECT ID FROM " + name + ";");
+            while (rs.next()) {
+                ints.add(rs.getInt("ID"));
+                if(rs.getInt("ID") > i) i = rs.getInt("ID");
+            }
+            stmt.executeUpdate("DELETE FROM " +  name + " WHERE ID=" + i + ";");
+            System.out.println("Data was delete");
+        } catch (SQLException e) {
+            System.out.println("Delete data exception.");
+        }
+    }
 }
