@@ -1,6 +1,7 @@
 package ui;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,44 +22,62 @@ public class UIFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(2, 1));
 
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if(worker.isOpen()){
+                    worker.closeDB();
+                }
+            }
+        });
+
 
         JPanel infoPanel = new JPanel(new BorderLayout());
         final JTextArea textArea = new JTextArea();
         textArea.setBackground(Color.pink);
-        String[] columnNames = {"ID",
-                "Name",
-                "Surname",
-                "Patronymic",
-                "Phone"};
-        String[][] data = {
-                {"aaaaaa", "bbbbbb", "cccccc", "dddddd", "eeeeeee",},
-                {"bbbbbb", "cccccc", "dddddd", "eeeeeee", "aaaaaa",},
-                {"cccccc", "dddddd", "eeeeeee", "aaaaaa", "bbbbbb",},
-                {"dddddd", "eeeeeee", "aaaaaa", "bbbbbb", "cccccc",},
-                {"eeeeeee", "aaaaaa", "bbbbbb", "cccccc", "dddddd",}};
-        JTable table = new JTable(data, columnNames);
+
+        final JTable table = new JTable();
+        final DefaultTableModel tableModel = new DefaultTableModel(0, 0);
+        table.setModel(tableModel);
         infoPanel.add(textArea, BorderLayout.NORTH);
         infoPanel.add(table, BorderLayout.CENTER);
-
 
 
         JPanel buttonPanel = new JPanel(new GridLayout(3, 1));
         JPanel dbPanel = new JPanel(new GridLayout());
         JComboBox dbBox = new JComboBox();
-        JButton createTable = new JButton("CREATE DATA BASE");
-        createTable.addActionListener(new ActionListener() {
+
+        JButton openDB = new JButton("OPEN DB");
+        openDB.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("create Table button touch!");
+                System.out.println("open DB button touch!");
                 textArea.setText("");
-                if (worker.createDB(dbName))
-                    textArea.append("DB created");
-                else
-                    textArea.append("Error of creating DB");
+                if (!worker.isOpen()) {
+                    worker.openDB(dbName);
+                    textArea.append("DB " + dbName + " Opened");
+                } else
+                    textArea.append("This DB is already open!");
+            }
+        });
+
+        JButton closeDB = new JButton("CLOSE DB");
+        closeDB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("close DB button touch!");
+                textArea.setText("");
+                if (worker.isOpen()) {
+                    worker.closeDB();
+                    textArea.append("DB " + dbName + " was close");
+                    tableModel.setRowCount(0);
+                } else
+                    textArea.append("All DB already closed!");
             }
         });
         dbPanel.add(dbBox);
-        dbPanel.add(createTable);
+        dbPanel.add(openDB);
+        dbPanel.add(closeDB);
 
         JButton infoButton = new JButton("SHOW DATA OF TABLE");
         infoButton.addActionListener(new ActionListener() {
@@ -67,13 +86,18 @@ public class UIFrame extends JFrame {
                 System.out.println("Info button touch!");
                 worker.reedDB(dbName);
                 textArea.setText("");
-                if (worker.info.size() > 0) {
-                    for (int i = 0; i < worker.info.size(); i++) {
-                        textArea.append(worker.info.get(i) + "\n");
-                    }
-                    worker.info.clear();
+                if (worker.isOpen()) {
+                    if (worker.infoList.size() > 0) {
+                        tableModel.setRowCount(0);
+                        tableModel.setColumnIdentifiers(worker.header);
+                        for (int i = 0; i < worker.infoList.size(); i++) {
+                            tableModel.addRow(worker.infoList.get(i));
+                        }
+                        textArea.append("Table from " + dbName + " DB was read!");
+                    } else
+                        textArea.append("Table is void!");
                 } else
-                    textArea.append("Table is void!");
+                    textArea.append("DB closed!");
             }
         });
 
