@@ -25,7 +25,7 @@ public class UIFrame extends JFrame {
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                if(worker.isOpen()){
+                if (worker.isOpen()) {
                     worker.closeDB();
                 }
             }
@@ -60,7 +60,6 @@ public class UIFrame extends JFrame {
                     textArea.append("This DB is already open!");
             }
         });
-
         JButton closeDB = new JButton("CLOSE DB");
         closeDB.addActionListener(new ActionListener() {
             @Override
@@ -79,14 +78,15 @@ public class UIFrame extends JFrame {
         dbPanel.add(openDB);
         dbPanel.add(closeDB);
 
+
         JButton infoButton = new JButton("SHOW DATA OF TABLE");
         infoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Info button touch!");
-                worker.reedDB(dbName);
                 textArea.setText("");
                 if (worker.isOpen()) {
+                    worker.reedDB(dbName);
                     if (worker.infoList.size() > 0) {
                         tableModel.setRowCount(0);
                         tableModel.setColumnIdentifiers(worker.header);
@@ -101,8 +101,27 @@ public class UIFrame extends JFrame {
             }
         });
 
+
         JPanel userPanel = new JPanel(new GridLayout());
         JButton addUser = new JButton("ADD USER");
+        addUser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Add data button touch!");
+                textArea.setText("");
+                if (worker.isOpen()) {
+                    worker.addData(dbName);
+                    worker.reedDB(dbName);
+                    tableModel.setRowCount(0);
+                    tableModel.setColumnIdentifiers(worker.header);
+                    for (int i = 0; i < worker.infoList.size(); i++) {
+                        tableModel.addRow(worker.infoList.get(i));
+                    }
+                    textArea.append("Data added!");
+                } else
+                    textArea.append("DB closed!");
+            }
+        });
         JButton deleteUser = new JButton("DELETE USER");
         userPanel.add(addUser);
         userPanel.add(deleteUser);

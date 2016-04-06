@@ -10,8 +10,10 @@ public class DBWorker {
     private Connection c = null;
     private Statement stmt = null;
     private boolean open = false;
+    private int id = 0;
     String[] header = null;
     ArrayList<String[]> infoList = new ArrayList<String[]>();
+    ResultSet rs;
 
 
     public boolean isOpen() {
@@ -22,7 +24,9 @@ public class DBWorker {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:" + name + ".db");
+            c.setAutoCommit(false);
             stmt = c.createStatement();
+            createTable(name);
             System.out.println("Open table successfully");
             open = true;
         } catch (Exception e) {
@@ -32,6 +36,7 @@ public class DBWorker {
 
     public void closeDB(){
         try {
+            c.commit();
             c.close();
             open = false;
             System.out.println("DB closed");
@@ -40,9 +45,9 @@ public class DBWorker {
         }
     }
 
-    public void reedDB(String bdName) {
+    public void reedDB(String name) {
         try {
-            ResultSet rs = stmt.executeQuery("SELECT * FROM " + bdName + ";");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM " + name + ";");
             ResultSetMetaData rsmd = rs.getMetaData();
             header = new String[rsmd.getColumnCount()];
             for (int i = 0; i < rsmd.getColumnCount(); i++) {
@@ -57,6 +62,7 @@ public class DBWorker {
                 str[3] = rs.getString("Patronymic");
                 str[4] = String.valueOf(rs.getInt("PhoneNumber"));
                 infoList.add(str);
+                if(rs.getInt("ID") > id) id = rs.getInt("ID");
             }
             open = true;
         } catch (Exception e) {
@@ -65,12 +71,8 @@ public class DBWorker {
     }
 
 
-    public void createDB(String name) {
+    public void createTable(String name) {
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:" + name + ".db");
-            System.out.println("Open database successfully");
-            stmt = c.createStatement();
             stmt.execute("CREATE TABLE " + name +
                     " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "Name STRING, " +
@@ -78,9 +80,20 @@ public class DBWorker {
                     "Patronymic STRING, " +
                     "PhoneNumber INT UNIQUE);");
             System.out.println("Create or open table successfully");
-            open = true;
-        } catch (Exception e) {
-            System.out.println("Open DB Exception or ClassFound Exception");
+        } catch (SQLException e) {
+            System.out.println("Table already created.");
+        }
+    }
+
+    public void addData(String name){
+        try {
+        stmt.executeUpdate("INSERT INTO " + name +
+                " (Name, Surname, Patronymic, PhoneNumber) " +
+                "VALUES ( 'Allen" + id + "' , 'Predator" + id + "', 'Texas" + id + "', 15434" + id + " );");
+            System.out.println("Data was added");
+            id++;
+        } catch (SQLException e) {
+            System.out.println("Add data exception.");
         }
     }
 
